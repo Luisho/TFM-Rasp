@@ -1,5 +1,5 @@
 # Nombre del ejecutable
-TARGET = controlador
+TARGET = controlador.elf
 
 # Compilador y opciones de compilación
 CC = gcc

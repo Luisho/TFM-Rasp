@@ -8,6 +8,12 @@
 
 extern int spi_handle;
 
+void initDevices(){
+    gpioSetMode(BUTTON_GPIO, PI_INPUT);
+    gpioSetPullUpDown(BUTTON_GPIO, PI_PUD_UP);
+    gpioSetMode(LED_RED, PI_OUTPUT);
+}
+
 int Inicializar_SPI() {
     if (gpioInitialise() < 0) {
         fprintf(stderr, "No se pudo inicializar Pigpio\n");

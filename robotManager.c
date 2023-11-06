@@ -26,8 +26,11 @@ void movimientos(int value){
 }
 
 void velocidad(int value){
+    //printf("potenciometro velocidad = %d\n", value);
     int speed;
-    if(value < VEL_LIMIT_1)
+    if(value < VEL_STOP)
+        speed = 0;
+    else if(value < VEL_LIMIT_1)
         speed = 1;
     else if(value < VEL_LIMIT_2)
         speed = 2;

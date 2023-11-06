@@ -4,7 +4,8 @@
 
 // PINOUT
 #define LED_RED 23
-#define LED_YELLOW 24  
+#define LED_YELLOW 24
+#define BUTTON_GPIO 22
 
 // ADC CHANNELS
 #define POT_DESLIZANTE 3
@@ -18,6 +19,7 @@
 
 // VELOCIDAD LIMITES
 // la velocidad va de 512: mínimo -> 1024: máximo
+#define VEL_STOP 520
 #define VEL_LIMIT_1 640
 #define VEL_LIMIT_2 768
 #define VEL_LIMIT_3 896
