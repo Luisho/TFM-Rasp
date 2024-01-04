@@ -4,7 +4,7 @@ TARGET = controlador.elf
 # Compilador y opciones de compilación
 CC = gcc
 CFLAGS = -Wall -I.
-LDFLAGS = -lpigpio -lrt
+LDFLAGS = -lpigpio -lrt -lmosquitto
 
 # Fuentes y objetos
 SRCS = main.c deviceManager.c robotManager.c
