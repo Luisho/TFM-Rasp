@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "dictionary.h"
 #include "deviceManager.h"
