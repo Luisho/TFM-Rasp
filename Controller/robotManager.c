@@ -31,7 +31,7 @@ void on_publish(struct mosquitto *mosq, void *userdata, int mid) {
 
 void movimientos(int value) {
     if (value >= 0) {
-        if (value > LIMIT_IZ) {
+        /*if (value > LIMIT_IZ) {
             printf("Girando a la izquierda\n");
             // Publica el giro en el topic "Robot/instrucciones"
             mosquitto_publish(mqtt_client, NULL, "Robot/instrucciones", sizeof("Giro izquierda"), "Giro izquierda", QoS_2, false);
@@ -47,7 +47,8 @@ void movimientos(int value) {
 
             // Publica el movimiento hacia adelante en el topic "Robot/instrucciones"
             mosquitto_publish(mqtt_client, NULL, "Robot/instrucciones", sizeof("Adelante"), "Adelante", QoS_2, false);
-        }
+        }*/
+        mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), value, QoS_2, false);
         printf(" Valor: %d\n", value);
     }
 }
@@ -73,6 +74,6 @@ void velocidad(int value) {
         // Publica la velocidad en el topic "Robot/Info/vel"
         char speed_str[2];
         snprintf(speed_str, sizeof(speed_str), "%d", speed);
-        mosquitto_publish(mqtt_client, NULL, "Robot/Info/vel", sizeof(speed_str), speed_str, QoS_1, false);
+        mosquitto_publish(mqtt_client, NULL, TOPIC_VEL, sizeof(speed_str), speed_str, QoS_1, false);
     }
 }
