@@ -26,7 +26,7 @@ void buttonPressed(int gpio, int level, uint32_t tick)
         // Invierte el estado del LED (encendido o apagado)
         ledState = !ledState;
         emerStop = !emerStop;
-
+        
         // Controla el LED en función del estado actual
         gpioWrite(LED_RED, ledState);
     }
