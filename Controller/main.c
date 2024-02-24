@@ -57,6 +57,8 @@ int main() {
         if(emerStop == 0){
             volante = LeerCanalSPI(POT_DESLIZANTE);
             speed = LeerCanalSPI(POT_ROTATORIO);
+            if(leerInfrarrojos() == 1)
+                printf("Activar Marcha Atrás\n");
 
             movimientos(volante);
             velocidad(speed);

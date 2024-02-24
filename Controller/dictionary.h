@@ -6,6 +6,7 @@
 #define LED_RED 23
 #define LED_YELLOW 24
 #define BUTTON_GPIO 22
+#define PIN_SENSOR 25
 
 // ADC CHANNELS
 #define POT_DESLIZANTE 3

@@ -12,6 +12,7 @@ void initDevices(){
     gpioSetMode(BUTTON_GPIO, PI_INPUT);
     gpioSetPullUpDown(BUTTON_GPIO, PI_PUD_UP);
     gpioSetMode(LED_RED, PI_OUTPUT);
+    gpioSetMode(PIN_SENSOR, PI_INPUT);
 }
 
 int Inicializar_SPI() {
@@ -49,6 +50,13 @@ int LeerCanalSPI(int channel) {
     int value = ((rx_data[1] & 3) << 8) + rx_data[2];
     return value;
 }
+
+int leerInfrarrojos(){
+    if(gpioRead(PIN_SENSOR)==0)
+        return 1
+    return 0
+}
+
 
 void Cerrar_SPI() {
     spiClose(spi_handle);
