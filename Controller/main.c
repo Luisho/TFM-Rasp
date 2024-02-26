@@ -10,9 +10,9 @@
 #include "robotManager.h"
 
 int spi_handle;
-bool shouldExit = false;
+volatile sig_atomic_t  shouldExit = false;
 int ledState = 0;
-int emerStop = 0;
+uint32_t lastButtonPress = 0;
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
@@ -20,26 +20,29 @@ void CtrlC_Interrupt(int signum) {
 
 void buttonPressed(int gpio, int level, uint32_t tick)
 {
-    if (gpio == BUTTON_GPIO && level == 0)
+    //Utilizado para evitar dobles pulsaciones
+    uint32_t diff = tick - lastButtonPress;
+
+    if (gpio == BUTTON_GPIO && level == 0 && diff > 500000)
     {
-        printf("Botón de emergencia presionado.\n");
         // Invierte el estado del LED (encendido o apagado)
         ledState = !ledState;
-        emerStop = !emerStop;
-        
+
         // Controla el LED en función del estado actual
         gpioWrite(LED_RED, ledState);
+        enviarParada();
+
+        //se actualiza la variable global
+        lastButtonPress = tick;
     }
 }
 
 int main() {
-
     if (gpioInitialise() < 0){
         fprintf(stderr, "Error al inicializar GPIO. Asegúrate de ejecutar el programa como superusuario.\n");
         return 1;
     }
-
-    // Captura la señal Ctrl-C
+    // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
 
     initDevices();
@@ -54,21 +57,25 @@ int main() {
 
     // Inicio del programa
     while (!shouldExit) {
-        if(emerStop == 0){
-            volante = LeerCanalSPI(POT_DESLIZANTE);
-            speed = LeerCanalSPI(POT_ROTATORIO);
-            if(leerInfrarrojos() == 1)
-                printf("Activar Marcha Atrás\n");
+        
+        volante = LeerCanalSPI(POT_ROTATORIO);
+        speed = LeerCanalSPI(POT_DESLIZANTE);
+        
+        if(leerInfrarrojos() == 1)
+            marchaAtras();
 
-            movimientos(volante);
-            velocidad(speed);
-        }
-        // Ajustar la espera
+        movimientos(volante);
+        velocidad(speed);
+
+        // Espera
         usleep(500000);
     }
 
     // Fin programa
+    gpioWrite(LED_RED, 0);
+    enviarParada();
     Cerrar_SPI();
+    gpioTerminate();
 
     return 0;
 }

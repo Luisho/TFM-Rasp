@@ -53,8 +53,8 @@ int LeerCanalSPI(int channel) {
 
 int leerInfrarrojos(){
     if(gpioRead(PIN_SENSOR)==0)
-        return 1
-    return 0
+        return 1;
+    return 0;
 }
 
 

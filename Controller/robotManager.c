@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <mosquitto.h>
+#include <string.h>
 
 // Includes
 #include "dictionary.h"
@@ -30,20 +31,29 @@ void on_publish(struct mosquitto *mosq, void *userdata, int mid) {
 }
 
 void movimientos(int value) {
+    //int value = (int)(((float)(valueToAjust-512)/512 )*1024);
     if (value >= 0) {
-        mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), value, QoS_2, false);
+        mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
         printf(" Valor: %d\n", value);
     }
 }
 
+void marchaAtras(){
+    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, strlen("atras"), "atras", QoS_2, false);
+    printf(" Atras \n");
+}
+
+
 void enviarParada(){
-    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(PARADA_VALUE), PARADA_VALUE, QoS_2, false);
+    int value = PARADA_VALUE;
+    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
+    printf(" Parada \n");
 }
 
 void velocidad(int value) {
     //printf("potenciometro velocidad = %d\n", value);
     int speed;
-    if (value < VEL_STOP)
+    if (value == VEL_STOP)
         speed = 0;
     else if (value < VEL_LIMIT_1)
         speed = 1;
