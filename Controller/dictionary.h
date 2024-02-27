@@ -33,4 +33,5 @@
 #define QoS_0 0                             // Calidad de Servicio 0
 #define QoS_1 1                             // Calidad de Servicio 1
 #define QoS_2 2                             // Calidad de Servicio 2
-#define PARADA_VALUE 3333                   // valor para parada
+#define BOTON_PULSADO 3333                  // valor para indicar que se ha pulsado el botón
+#define ATRAS_VALUE 2222                    // valor para ir marcha atras

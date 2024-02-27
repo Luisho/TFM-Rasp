@@ -30,7 +30,7 @@ void buttonPressed(int gpio, int level, uint32_t tick)
 
         // Controla el LED en función del estado actual
         gpioWrite(LED_RED, ledState);
-        enviarParada();
+        enviarBoton();
 
         //se actualiza la variable global
         lastButtonPress = tick;
@@ -73,7 +73,7 @@ int main() {
 
     // Fin programa
     gpioWrite(LED_RED, 0);
-    enviarParada();
+    enviarBoton();
     Cerrar_SPI();
     gpioTerminate();
 

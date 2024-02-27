@@ -1,5 +1,8 @@
 enum Estado {GIRAR_IZQUIERDA, GIRAR_DERECHA, PARADA, AVANZAR, MARCHA_ATRAS};
 
-enum Evento {giro_iz, giro_de, Parar, avanzar, retroceder};
+enum Evento {giro_iz, giro_de, botonPulsado, retroceder};
 
-void manjarEstados(enum Evento evento);
+void Giro_iz(int value);
+void Giro_de(int value);
+void BotonPulsado();
+void Retroceder();

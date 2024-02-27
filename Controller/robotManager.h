@@ -1,4 +1,4 @@
 void movimientos(int value);
 void velocidad(int value);
 void marchaAtras();
-void enviarParada();
+void enviarBoton();

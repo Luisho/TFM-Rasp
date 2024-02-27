@@ -39,13 +39,13 @@ void movimientos(int value) {
 }
 
 void marchaAtras(){
-    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, strlen("atras"), "atras", QoS_2, false);
+    int value = ATRAS_VALUE;
+    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
     printf(" Atras \n");
 }
 
-
-void enviarParada(){
-    int value = PARADA_VALUE;
+void enviarBoton(){
+    int value = BOTON_PULSADO;
     mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
     printf(" Parada \n");
 }
