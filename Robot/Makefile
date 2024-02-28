@@ -7,7 +7,7 @@ CFLAGS = -Wall -I.
 LDFLAGS = -lpigpio -lrt -lmosquitto
 
 # Fuentes y objetos
-SRCS = main.c
+SRCS = main.c controlarMotores.c maquina_estados.c
 OBJS = $(SRCS:.c=.o)
 
 # Reglas de construcción

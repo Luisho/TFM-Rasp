@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "controlarMotores.h"
 
 int velocidadActual = 1;
