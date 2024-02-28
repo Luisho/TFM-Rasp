@@ -1,9 +1,26 @@
 #include <stdio.h>
 #include "maquina_estados.h"
 #include "controlarMotores.h"
+#include "dictionary.h"
 
 // Guardar el estado Actual
 enum Estado estadoActual = PARADA;
+
+//Generador de Eventos
+void generarEvento(const int instruccion) {
+    // Lógica de control de motores según la instrucción recibida
+    //printf("%d", instruccion);
+    if(instruccion <= GIRO_IZ_LIMIT_VALUE)
+        Giro_iz(instruccion);
+    else if(instruccion >= GIRO_DE_LIMIT_VALUE && instruccion <= MAX_POT_VALUE)
+        Giro_de(instruccion);
+    else if(instruccion == ATRAS_VALUE)
+        Retroceder(); 
+    else if(instruccion == BOTON_PULSADO)
+        BotonPulsado();
+    else if(instruccion > GIRO_IZ_LIMIT_VALUE && instruccion < GIRO_DE_LIMIT_VALUE && (estadoActual == GIRAR_IZQUIERDA || estadoActual == GIRAR_DERECHA))
+        BotonPulsado();
+}
 
 // Funciones para manejar los eventos
 void Giro_iz(int value){
