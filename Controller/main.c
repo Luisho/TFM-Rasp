@@ -25,10 +25,10 @@ void buttonPressed(int gpio, int level, uint32_t tick){
     if (gpio == BUTTON_GPIO && level == 0 && diff > 500000)
     {
         // Invierte el estado del LED (encendido o apagado)
-        ledState = !ledState;
+        ledState = !ledState;// Lo quitaré en un futuro
 
         // Controla el LED en función del estado actual
-        gpioWrite(LED_RED, ledState);
+        gpioWrite(LED_RED, ledState);// Lo quitaré en un futuro
         enviarBoton();
 
         //se actualiza la variable global
@@ -46,7 +46,7 @@ int main() {
 
     iniciarMosquitto();
     initDevices();
-    gpioWrite(LED_RED, ledState);
+    gpioWrite(LED_RED, ledState); // Lo quitaré en un futuro
     gpioSetAlertFunc(BUTTON_GPIO, buttonPressed);
 
     // Inicializar el canal SPI
