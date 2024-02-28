@@ -68,7 +68,7 @@ int main() {
         }
     }
 
-    // (Código de desconexión MQTT y limpieza, similar al ejemplo anterior)
+    // Código de desconexión MQTT y limpieza
     mosquitto_disconnect(mosq);
     mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
