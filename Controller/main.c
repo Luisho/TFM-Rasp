@@ -11,15 +11,14 @@
 
 int spi_handle;
 volatile sig_atomic_t  shouldExit = false;
-int ledState = 0;
+int ledState = 1;
 uint32_t lastButtonPress = 0;
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
 }
 
-void buttonPressed(int gpio, int level, uint32_t tick)
-{
+void buttonPressed(int gpio, int level, uint32_t tick){
     //Utilizado para evitar dobles pulsaciones
     uint32_t diff = tick - lastButtonPress;
 
@@ -45,7 +44,9 @@ int main() {
     // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
 
+    iniciarMosquitto();
     initDevices();
+    gpioWrite(LED_RED, ledState);
     gpioSetAlertFunc(BUTTON_GPIO, buttonPressed);
 
     // Inicializar el canal SPI

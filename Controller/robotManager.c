@@ -16,8 +16,9 @@ int current_speed = -1;
 
 // Estructuras
 struct mosquitto *mqtt_client;
+int keepalive = 60;
 
-// Funciones
+// MQTT Initialization
 void on_connect(struct mosquitto *mosq, void *userdata, int result) {
     if (result == MOSQ_ERR_SUCCESS) {
         printf("Conexión MQTT exitosa\n");
@@ -30,23 +31,50 @@ void on_publish(struct mosquitto *mosq, void *userdata, int mid) {
     printf("Mensaje MQTT publicado con éxito\n");
 }
 
+void iniciarMosquitto() {
+    // Inicializar el cliente Mosquitto
+    mosquitto_lib_init();
+    // Crear una instancia del cliente Mosquitto
+    mqtt_client = mosquitto_new(NULL, true, NULL);
+    if (!mqtt_client) {
+        fprintf(stderr, "Error al crear la instancia del cliente Mosquitto\n");
+        return;
+    }
+    // Establecer callbacks
+    mosquitto_connect_callback_set(mqtt_client, on_connect);
+    mosquitto_publish_callback_set(mqtt_client, on_publish);
+    // Conectar al broker MQTT
+    if (mosquitto_connect(mqtt_client, MQTT_HOST, MQTT_PORT, keepalive) != MOSQ_ERR_SUCCESS) {
+        fprintf(stderr, "Error al conectar al broker MQTT\n");
+        return;
+    }
+    // Iniciar el bucle de eventos MQTT en segundo plano
+    mosquitto_loop_start(mqtt_client);
+}
+
+// Funciones
 void movimientos(int value) {
-    //int value = (int)(((float)(valueToAjust-512)/512 )*1024);
-    if (value >= 0) {
-        mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
+    if (value >= 0 && value <= 1024) {
+        char value_str[6]; 
+        snprintf(value_str, sizeof(value_str), "%d", value);
+        mosquitto_publish(mqtt_client, NULL, TOPIC_INST, strlen(value_str), value_str, QoS_2, false);
         printf(" Valor: %d\n", value);
     }
 }
 
-void marchaAtras(){
+void marchaAtras() {
     int value = ATRAS_VALUE;
-    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
+    char value_str[8];
+    snprintf(value_str, sizeof(value_str), "%d", value);
+    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, strlen(value_str), value_str, QoS_2, false);
     printf(" Atras \n");
 }
 
-void enviarBoton(){
+void enviarBoton() {
     int value = BOTON_PULSADO;
-    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, sizeof(value), &value, QoS_2, false);
+    char value_str[8];
+    snprintf(value_str, sizeof(value_str), "%d", value);
+    mosquitto_publish(mqtt_client, NULL, TOPIC_INST, strlen(value_str), value_str, QoS_2, false);
     printf(" Parada \n");
 }
 
