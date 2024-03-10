@@ -79,7 +79,6 @@ void enviarBoton() {
 }
 
 void velocidad(int value) {
-    //printf("potenciometro velocidad = %d\n", value);
     int speed;
     if (value == VEL_STOP)
         speed = 0;

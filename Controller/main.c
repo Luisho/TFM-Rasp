@@ -18,24 +18,6 @@ void CtrlC_Interrupt(int signum) {
     shouldExit = true;
 }
 
-void buttonPressed(int gpio, int level, uint32_t tick){
-    //Utilizado para evitar dobles pulsaciones
-    uint32_t diff = tick - lastButtonPress;
-
-    if (gpio == BUTTON_GPIO && level == 0 && diff > 500000)
-    {
-        // Invierte el estado del LED (encendido o apagado)
-        ledState = !ledState;// Lo quitaré en un futuro
-
-        // Controla el LED en función del estado actual
-        gpioWrite(LED_RED, ledState);// Lo quitaré en un futuro
-        enviarBoton();
-
-        //se actualiza la variable global
-        lastButtonPress = tick;
-    }
-}
-
 int main() {
     if (gpioInitialise() < 0){
         fprintf(stderr, "Error al inicializar GPIO. Asegúrate de ejecutar el programa como superusuario.\n");

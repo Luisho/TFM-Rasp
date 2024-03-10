@@ -40,6 +40,12 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 }
 
 int main() {
+    // Inicializar Motores
+    /// Inicializar pigpio
+    gpioInitialise();  
+    /// Inicializar pines motores
+    initMotores();
+    
     // Inicialización de Mosquitto
     mosquitto_lib_init();
 
