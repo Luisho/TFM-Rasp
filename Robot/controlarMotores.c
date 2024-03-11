@@ -41,11 +41,11 @@ void moverMotoresAtras(){
     // Deberá ser a una velocidad fija no cambiará
     gpioWrite(MOTOR_D_IN1, LOW);
     gpioWrite(MOTOR_D_IN2, HIGH);
-    gpioPWM(MOTOR_D_PWM, ATRAS_VALUE);
+    gpioPWM(MOTOR_D_PWM, ATRAS_SPEED);
 
     gpioWrite(MOTOR_I_IN1, LOW);
     gpioWrite(MOTOR_I_IN2, HIGH);
-    gpioPWM(MOTOR_I_PWM, ATRAS_VALUE);
+    gpioPWM(MOTOR_I_PWM, ATRAS_SPEED);
 
     printf("Moviéndo hacia atrás\n");
 }
