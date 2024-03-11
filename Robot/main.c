@@ -9,10 +9,6 @@
 #include "maquina_estados.h"
 #include "controlarMotores.h"
 
-// Definir pines de control de motores (ajusta según tus conexiones)
-#define MOTOR1_PIN 17
-#define MOTOR2_PIN 18
-
 struct mosquitto *mosq = NULL;
 
 
