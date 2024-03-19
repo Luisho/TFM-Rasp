@@ -5,8 +5,11 @@
 #include <unistd.h>
 
 #include "dictionary.h"
+#include "robotManager.h"
 
 extern int spi_handle;
+uint32_t lastButtonPress = 0;
+extern int ledState;
 
 void initDevices(){
     gpioSetMode(BUTTON_GPIO, PI_INPUT);

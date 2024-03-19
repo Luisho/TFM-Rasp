@@ -12,7 +12,7 @@
 int spi_handle;
 volatile sig_atomic_t  shouldExit = false;
 int ledState = 1;
-uint32_t lastButtonPress = 0;
+
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
