@@ -25,7 +25,7 @@
 // Motor Izquierdo
 #define MOTOR_I_IN1 5  // GPIO 5 - Control de dirección motor Izquierdo
 #define MOTOR_I_IN2 6  // GPIO 6 - Control de dirección motor Izquierdo
-#define MOTOR_I_PWM 13 // GPIO 13 - PWM para control de velocidad motor Izquierdo
+#define MOTOR_I_PWM 19 // GPIO 19 - PWM para control de velocidad motor Izquierdo
 
 // Valores definidos
 #define MAX_PWM_VALUE 255
