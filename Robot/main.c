@@ -10,7 +10,11 @@
 #include "controlarMotores.h"
 
 struct mosquitto *mosq = NULL;
+volatile sig_atomic_t  shouldExit = false;
 
+void CtrlC_Interrupt(int signum) {
+    shouldExit = true;
+}
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
     // Guardar la instrucción en un entero
@@ -36,9 +40,10 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 }
 
 int main() {
-    // Inicializar Motores
     /// Inicializar pigpio
-    gpioInitialise();  
+    gpioInitialise();
+    // Capturar señal ctrl+c
+    signal(SIGINT, CtrlC_Interrupt);
     /// Inicializar pines motores
     initMotores();
     
@@ -67,7 +72,7 @@ int main() {
     mosquitto_subscribe(mosq, NULL, TOPIC_INST, QoS_2);
     mosquitto_subscribe(mosq, NULL, TOPIC_VEL, QoS_2);
     // Bucle principal
-    while (1) {
+    while (!shouldExit) {
         // Procesar eventos de Mosquitto
         int rc = mosquitto_loop(mosq, 0, 1);
 
