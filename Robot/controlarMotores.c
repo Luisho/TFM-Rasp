@@ -83,7 +83,7 @@ void establecerVelocidad(int value){
         velocidadActual = value; // El ponerlo así puede que venga bien en un futuro
         
         // Modelizado del valor PWM respecto de la velocidad de 4 etapas establecida
-        valorPWM = ((value * 25) * 255) / 100;
+        valorPWM = ((velocidadActual * 25) * MAX_PWM_VALUE) / 100;
     }
 }
 
@@ -92,9 +92,11 @@ void initMotores() {
     gpioSetMode(MOTOR_D_IN1, PI_OUTPUT);
     gpioSetMode(MOTOR_D_IN2, PI_OUTPUT);
     gpioSetMode(MOTOR_D_PWM, PI_OUTPUT);
+    gpioSetPWMfrequency(MOTOR_D_PWM, 30000);
     
     // Pines motor izquierdo
     gpioSetMode(MOTOR_I_IN1, PI_OUTPUT);
     gpioSetMode(MOTOR_I_IN2, PI_OUTPUT);
     gpioSetMode(MOTOR_I_PWM, PI_OUTPUT);
+    gpioSetPWMfrequency(MOTOR_I_PWM, 30000);
 }

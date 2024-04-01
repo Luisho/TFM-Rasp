@@ -28,8 +28,8 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     } else if (strcmp(message->topic, TOPIC_VEL) == 0){
         int velocidad;
         if (sscanf(message->payload, "%d", &velocidad) == 1) {
-            //printf("Mensaje recibido en el topic: %s\n", message->topic);
-            //printf("Contenido del mensaje: %d\n", velocidad);
+            printf("Mensaje recibido en el topic: %s\n", message->topic);
+            printf("Contenido del mensaje: %d\n", velocidad);
             establecerVelocidad(velocidad);
         }
     }
@@ -38,7 +38,8 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 int main() {
     // Inicializar Motores
     /// Inicializar pigpio
-    gpioInitialise();  
+    gpioInitialise();
+    
     /// Inicializar pines motores
     initMotores();
     
