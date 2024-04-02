@@ -1,91 +1,50 @@
 #include <stdio.h>
-#include <mosquitto.h>
-#include <string.h>
-#include <unistd.h>
+#include <pigpio.h>
 
-// Global variables
-struct mosquitto *mqtt_client;
-int keepalive = 60;
-
-// MQTT Configuration
-#define MQTT_HOST "192.168.3.57"   // IP del broker MQTT
-#define MQTT_PORT 1883             // Puerto del broker MQTT
-#define QoS_2 2                    // Calidad de Servicio 2
-
-void publicarMensaje(const char *topic, const char *mensaje, const int QoS);
-
-// MQTT Callbacks
-void on_connect(struct mosquitto *mosq, void *userdata, int result) {
-    printf("1");
-    if (result == MOSQ_ERR_SUCCESS) {
-        printf("Conexión MQTT exitosa\n");
-    } else {
-        fprintf(stderr, "Error al conectar al broker MQTT: %s\n", mosquitto_connack_string(result));
-    }
-}
-
-void on_publish(struct mosquitto *mosq, void *userdata, int mid) {
-    printf("Mensaje MQTT publicado con éxito\n");
-}
-
-// MQTT Initialization
-void iniciarMosquitto() {
-    // Inicializar el cliente Mosquitto
-    mosquitto_lib_init();
-    // Crear una instancia del cliente Mosquitto
-    mqtt_client = mosquitto_new(NULL, true, NULL);
-    if (!mqtt_client) {
-        fprintf(stderr, "Error al crear la instancia del cliente Mosquitto\n");
-        return;
-    }
-    // Establecer callbacks
-    mosquitto_connect_callback_set(mqtt_client, on_connect);
-    mosquitto_publish_callback_set(mqtt_client, on_publish);
-    // Conectar al broker MQTT (asegúrate de que el broker esté en ejecución)
-    if (mosquitto_connect(mqtt_client, MQTT_HOST, MQTT_PORT, keepalive) != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "Error al conectar al broker MQTT\n");
-        return;
-    }
-    // Iniciar el bucle de eventos MQTT en segundo plano
-    mosquitto_loop_start(mqtt_client);
-}
-
-// MQTT Cleanup
-void finalizarMosquitto() {
-    // Desconectar y destruir el cliente Mosquitto
-    mosquitto_disconnect(mqtt_client);
-    mosquitto_destroy(mqtt_client);
-
-    // Finalizar la biblioteca Mosquitto
-    mosquitto_lib_cleanup();
-}
-
-// Publish Test Messages
-void publicarMensajesPrueba() {
-    // Publica mensajes de prueba en el topic "Robot/instrucciones"
-    publicarMensaje("Robot/instrucciones", "Giro izquierda", QoS_2);
-    publicarMensaje("Robot/instrucciones", "Giro derecha", QoS_2);
-    publicarMensaje("Robot/instrucciones", "Alante", QoS_2);
-}
-
-// Publish Message
-void publicarMensaje(const char *topic, const char *mensaje, const int QoS) {
-    // Publicar un mensaje en el topic especificado
-    mosquitto_publish(mqtt_client, NULL, topic, strlen(mensaje), mensaje, QoS, false);
-    printf("7");
-}
+#define GY30_ADDR 0x5c // Dirección I2C del sensor GY-30
 
 int main() {
-    iniciarMosquitto();
-    
+    if (gpioInitialise() < 0) {
+        printf("Error al inicializar pigpio\n");
+        return 1;
+    }
 
-    // Publicar mensajes de prueba
-    publicarMensajesPrueba();
+    int handle = i2cOpen(1, GY30_ADDR, 0); // Abre un bus I2C en la interfaz 1 y devuelve un identificador de manejo
 
-    // Esperar unos segundos para permitir la entrega de mensajes
-    sleep(5);
+    if (handle < 0) {
+        printf("Error al abrir el bus I2C\n");
+        return 1;
+    }
 
-    finalizarMosquitto();
+    while(1) { // Realizar 10 lecturas de luminosidad
+        // Escribir un comando para iniciar la medición en el sensor de luminosidad
+        if (i2cWriteByte(handle, 0x10) != 0) {
+            printf("Error al enviar el comando de inicio de medición\n");
+            return 1;
+        }
+
+        // Esperar un breve tiempo para que el sensor realice la medición
+        time_sleep(0.5);
+
+        // Leer datos del sensor
+        uint16_t data;
+        data = i2cReadWordData(handle, 0x00);
+        if (data < 0) {
+            printf("Error al leer datos del sensor\n");
+            return 1;
+        }
+        
+
+        // Convertir los datos a lux
+        double lux = data / 1.2;
+
+        printf("Luminosidad: %.2f lux\n", lux);
+    }
+
+    // Cerrar el bus I2C
+    i2cClose(handle);
+
+    gpioTerminate(); // Terminar pigpio
 
     return 0;
 }

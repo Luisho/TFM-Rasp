@@ -1,10 +1,10 @@
 # Nombre del ejecutable
-TARGET = controller.elf
+TARGET = luminosidad_sensor
 
 # Compilador y opciones de compilación
 CC = gcc
 CFLAGS = -Wall -I.
-LDFLAGS = -lpigpio -lrt -lmosquitto
+LDFLAGS = -lpigpio -lrt -lpthread
 
 # Fuentes y objetos
 SRCS = main.c
@@ -22,4 +22,3 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 .PHONY: clean
-

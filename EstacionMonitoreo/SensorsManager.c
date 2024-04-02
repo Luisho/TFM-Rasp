@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <pigpio.h>
+#include <unistd.h>
 
 #include "dictionary.h"
 
-int initDevices(int *handle){
+int initDevices(int *handleLum){
     // Inicializar librería pigpio
     if (gpioInitialise() < 0) {
         fprintf(stderr, "Error al inicializar pigpio\n");
@@ -11,8 +12,8 @@ int initDevices(int *handle){
     }
 
     //Inicializar bus I2C
-    if ((*handle = i2cOpen(1, 0x00, 0)) < 0) {
-        fprintf(stderr, "Error al abrir el bus I2C\n");
+    if ((*handleLum = i2cOpen(1, GY30_ADDRESS, 0)) < 0) {
+        fprintf(stderr, "Error al abrir el bus I2C del sensor de luminosidad\n");
         gpioTerminate();
         return 1;
     }
@@ -20,12 +21,19 @@ int initDevices(int *handle){
     return 0;
 }
 
-void getI2CValues(const int handle, int *lum, int *temp){
+void getluminityValues(int handleLum, int *lum){
     // Leer el valor de la intensidad de luz del sensor GY-30
-    i2cWriteByte(handle, GY30_ADDRESS);
-    *lum = i2cReadWordData(handle, 0);
+     if (i2cWriteByte(handleLum, 0x10) != 0) {
+        printf("Error al enviar el comando de inicio de medición\n");
+        return 1;
+    }
+    time_sleep(0.5);
 
-    // Leer el valor de temperatura del sensor HW-691
-    i2cWriteByte(handle, HW691_ADDRESS);
-    *temp = i2cReadWordData(handle, 0);
+    uint16_t data = i2cReadWordData(handleLum, 0x00);
+    if (data < 0) {
+        printf("Error al leer datos del sensor\n");
+        return 1;
+    }
+
+    *lum = data / 1.2;
 }

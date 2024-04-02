@@ -16,7 +16,7 @@ void CtrlC_Interrupt(int signum) {
 
 int main() {
     int handle;
-    int luz, temperatura;
+    int luz;
 
     if(initDevices(&handle)){
         fprintf(stderr, "Error al inicializar dispositivos\n");
@@ -27,10 +27,10 @@ int main() {
 
     // Inicio del programa
     while (!shouldExit) {
-        getI2CValues(handle, &luz, &temperatura);
-        
-        printf("Valor de la luz: %d\n", luz);
-        printf("Valor de la temperatura: %d\n", temperatura);
+        getluminityValues(handle, &luz);
+
+        printf("Luminosidad: %d lux\n", luz);
+
         // Espera
         usleep(500000);
     }
