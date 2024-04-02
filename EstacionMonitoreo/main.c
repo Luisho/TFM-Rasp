@@ -27,7 +27,7 @@ int main() {
 
     // Inicio del programa
     while (!shouldExit) {
-        readSensorValues(handle, &luz, &temperatura)
+        getI2CValues(handle, &luz, &temperatura);
         
         printf("Valor de la luz: %d\n", luz);
         printf("Valor de la temperatura: %d\n", temperatura);
