@@ -1,0 +1,2 @@
+#define GY30_ADDRESS 0x5C
+#define HW691_ADDRESS 0x7F

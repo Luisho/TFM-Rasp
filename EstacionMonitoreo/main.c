@@ -5,46 +5,38 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "SensorsManager.h"
+
+volatile sig_atomic_t  shouldExit = false;
+
+
+void CtrlC_Interrupt(int signum) {
+    shouldExit = true;
+}
+
 int main() {
-    if (gpioInitialise() < 0){
-        fprintf(stderr, "Error al inicializar GPIO. Asegúrate de ejecutar el programa como superusuario.\n");
+    int handle;
+    int luz, temperatura;
+
+    if(initDevices(&handle)){
+        fprintf(stderr, "Error al inicializar dispositivos\n");
         return 1;
     }
     // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
 
-    iniciarMosquitto();
-    initDevices();
-    gpioWrite(LED_RED, ledState); // Lo quitaré en un futuro
-    gpioSetAlertFunc(BUTTON_GPIO, buttonPressed);
-
-    // Inicializar el canal SPI
-    spi_handle = Inicializar_SPI();
-    if (spi_handle < 0) return 1;
-
-    // variables locales
-    int volante, speed;
-
     // Inicio del programa
     while (!shouldExit) {
+        readSensorValues(handle, &luz, &temperatura)
         
-        volante = LeerCanalSPI(POT_ROTATORIO);
-        speed = LeerCanalSPI(POT_DESLIZANTE);
-        
-        if(leerInfrarrojos() == 1)
-            marchaAtras();
-
-        movimientos(volante);
-        velocidad(speed);
-
+        printf("Valor de la luz: %d\n", luz);
+        printf("Valor de la temperatura: %d\n", temperatura);
         // Espera
         usleep(500000);
     }
 
     // Fin programa
-    gpioWrite(LED_RED, 0);
-    enviarBoton();
-    Cerrar_SPI();
+    i2cClose(handle);
     gpioTerminate();
 
     return 0;

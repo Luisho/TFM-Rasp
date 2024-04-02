@@ -1,0 +1,1 @@
+int initDevices(int *handle);
