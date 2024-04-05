@@ -46,10 +46,10 @@ void getluminityValues(int handleLum, int *lum){
 
 void getAmbientTemperature(int handleTemp, float *ambientTemp){
     // Leer temperatura ambiente en grados Celsius
-    ambientTemp = i2cReadWordData(handle, AMBIENT_TEMP_CHANNEL) * 0.02 - 273.15;
+    *ambientTemp = i2cReadWordData(handleTemp, AMBIENT_TEMP_CHANNEL) * 0.02 - 273.15;
 }
 
 void getObjectTemperature(int handleTemp, float *objectTemp){
     // Leer temperatura del objeto en grados Celsius
-    objectTemp = i2cReadWordData(handle, OBJECT_TEMP_CHANNEL) * 0.02 - 273.15;
+    *objectTemp = i2cReadWordData(handleTemp, OBJECT_TEMP_CHANNEL) * 0.02 - 273.15;
 }

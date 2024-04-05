@@ -16,7 +16,8 @@ void CtrlC_Interrupt(int signum) {
 
 int main() {
     int handleLum, handleTemp;
-    int luz, ambientTemp, objectTemp;
+    int luz;
+    float ambientTemp, objectTemp;
 
     if(initDevices(&handleLum, &handleTemp)){
         fprintf(stderr, "Error al inicializar dispositivos\n");
@@ -27,7 +28,7 @@ int main() {
 
     // Inicio del programa
     while (!shouldExit) {
-        getluminityValues(handle, &luz);
+        getluminityValues(handleLum, &luz);
         getAmbientTemperature(handleTemp, &ambientTemp);
         getObjectTemperature(handleTemp, &objectTemp);
 
@@ -38,7 +39,8 @@ int main() {
     }
 
     // Fin programa
-    i2cClose(handle);
+    i2cClose(handleLum);
+    i2cClose(handleTemp);
     gpioTerminate();
 
     return 0;
