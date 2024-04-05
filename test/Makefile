@@ -1,5 +1,5 @@
 # Nombre del ejecutable
-TARGET = luminosidad_sensor
+TARGET = main
 
 # Compilador y opciones de compilación
 CC = gcc

@@ -1,50 +1,42 @@
 #include <stdio.h>
 #include <pigpio.h>
+#include <unistd.h> // Para la función sleep
 
-#define GY30_ADDR 0x5c // Dirección I2C del sensor GY-30
+#define HW691_ADDR 0x5A // Dirección I2C del sensor HW-691
+#define INTERVALO_LECTURA_US 500000 // Intervalo de lectura en microsegundos (0.5 segundos)
 
 int main() {
     if (gpioInitialise() < 0) {
-        printf("Error al inicializar pigpio\n");
+        fprintf(stderr, "Error al inicializar pigpio\n");
         return 1;
     }
 
-    int handle = i2cOpen(1, GY30_ADDR, 0); // Abre un bus I2C en la interfaz 1 y devuelve un identificador de manejo
+    int handle = i2cOpen(1, HW691_ADDR, 0); // Abre un bus I2C en la interfaz 1 y devuelve un identificador de manejo
 
     if (handle < 0) {
-        printf("Error al abrir el bus I2C\n");
+        fprintf(stderr, "Error al abrir el bus I2C del sensor HW-691\n");
+        gpioTerminate();
         return 1;
     }
 
-    while(1) { // Realizar 10 lecturas de luminosidad
-        // Escribir un comando para iniciar la medición en el sensor de luminosidad
-        if (i2cWriteByte(handle, 0x10) != 0) {
-            printf("Error al enviar el comando de inicio de medición\n");
-            return 1;
-        }
+    printf("Leyendo temperaturas...\n");
 
-        // Esperar un breve tiempo para que el sensor realice la medición
-        time_sleep(0.5);
+    while (1) {
+        // Leer temperatura ambiente en grados Celsius
+        float ambientTempC = i2cReadWordData(handle, 0x06) * 0.02 - 273.15;
 
-        // Leer datos del sensor
-        uint16_t data;
-        data = i2cReadWordData(handle, 0x00);
-        if (data < 0) {
-            printf("Error al leer datos del sensor\n");
-            return 1;
-        }
-        
+        // Leer temperatura del objeto en grados Celsius
+        float objectTempC = i2cReadWordData(handle, 0x07) * 0.02 - 273.15;
 
-        // Convertir los datos a lux
-        double lux = data / 1.2;
+        printf("Temperatura ambiente: %.2f °C\tTemperatura objeto: %.2f °C\n", ambientTempC, objectTempC);
 
-        printf("Luminosidad: %.2f lux\n", lux);
+        // Esperar antes de la próxima lectura
+        usleep(INTERVALO_LECTURA_US);
     }
 
-    // Cerrar el bus I2C
+    // Nunca se llegará aquí, pero cerramos el bus I2C y terminamos pigpio para ser formales
     i2cClose(handle);
-
-    gpioTerminate(); // Terminar pigpio
+    gpioTerminate();
 
     return 0;
 }
