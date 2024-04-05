@@ -4,7 +4,7 @@
 
 #include "dictionary.h"
 
-int initDevices(int *handleLum){
+int initDevices(int *handleLum, int *handleTemp){
     // Inicializar librería pigpio
     if (gpioInitialise() < 0) {
         fprintf(stderr, "Error al inicializar pigpio\n");
@@ -14,6 +14,12 @@ int initDevices(int *handleLum){
     //Inicializar bus I2C
     if ((*handleLum = i2cOpen(1, GY30_ADDRESS, 0)) < 0) {
         fprintf(stderr, "Error al abrir el bus I2C del sensor de luminosidad\n");
+        gpioTerminate();
+        return 1;
+    }
+
+    if ((*handleTemp = i2cOpen(1, HW691_ADDRESS, 0)) < 0) {
+        fprintf(stderr, "Error al abrir el bus I2C del sensor de Temperatura\n");
         gpioTerminate();
         return 1;
     }
@@ -36,4 +42,14 @@ void getluminityValues(int handleLum, int *lum){
     }
 
     *lum = data / 1.2;
+}
+
+void getAmbientTemperature(int handleTemp, float *ambientTemp){
+    // Leer temperatura ambiente en grados Celsius
+    ambientTemp = i2cReadWordData(handle, AMBIENT_TEMP_CHANNEL) * 0.02 - 273.15;
+}
+
+void getObjectTemperature(int handleTemp, float *objectTemp){
+    // Leer temperatura del objeto en grados Celsius
+    objectTemp = i2cReadWordData(handle, OBJECT_TEMP_CHANNEL) * 0.02 - 273.15;
 }

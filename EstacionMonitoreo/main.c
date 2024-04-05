@@ -15,10 +15,10 @@ void CtrlC_Interrupt(int signum) {
 }
 
 int main() {
-    int handle;
-    int luz;
+    int handleLum, handleTemp;
+    int luz, ambientTemp, objectTemp;
 
-    if(initDevices(&handle)){
+    if(initDevices(&handleLum, &handleTemp)){
         fprintf(stderr, "Error al inicializar dispositivos\n");
         return 1;
     }
@@ -28,8 +28,10 @@ int main() {
     // Inicio del programa
     while (!shouldExit) {
         getluminityValues(handle, &luz);
+        getAmbientTemperature(handleTemp, &ambientTemp);
+        getObjectTemperature(handleTemp, &objectTemp);
 
-        printf("Luminosidad: %d lux\n", luz);
+        printf("Luminosidad: %d lux | Temperatura ambiente: %.2f °C | Temperatura objeto: %.2f °C\n", luz, ambientTemp, objectTemp);
 
         // Espera
         usleep(500000);
