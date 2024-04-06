@@ -2,3 +2,7 @@
 #define HW691_ADDRESS 0x5a
 #define AMBIENT_TEMP_CHANNEL 0x06
 #define OBJECT_TEMP_CHANNEL 0x07
+#define GASES_CHANNEL 1
+#define SPI_CHANNEL 0
+#define SPI_SPEED   1000000  // Velocidad en Hz
+#define SPI_FLAGS   0

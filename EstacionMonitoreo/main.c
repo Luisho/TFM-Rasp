@@ -15,14 +15,19 @@ void CtrlC_Interrupt(int signum) {
 }
 
 int main() {
-    int handleLum, handleTemp;
-    int luz;
+    int handleLum, handleTemp, spi_handle;
+    int luz, valorGases;
     float ambientTemp, objectTemp;
 
     if(initDevices(&handleLum, &handleTemp)){
         fprintf(stderr, "Error al inicializar dispositivos\n");
         return 1;
     }
+
+    if (Inicializar_SPI(&spi_handle) < 0) {
+        return 1;
+    }
+
     // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
 
@@ -32,7 +37,9 @@ int main() {
         getAmbientTemperature(handleTemp, &ambientTemp);
         getObjectTemperature(handleTemp, &objectTemp);
 
-        printf("Luminosidad: %d lux | Temperatura ambiente: %.2f °C | Temperatura objeto: %.2f °C\n", luz, ambientTemp, objectTemp);
+        valorGases = LeerCanalSPI(GASES_CHANNEL)
+
+        printf("Luminosidad: %d lux | Temperatura ambiente: %.2f °C | Temperatura objeto: %.2f °C | Gases: %d\n", luz, ambientTemp, objectTemp, valorGases);
 
         // Espera
         usleep(500000);
