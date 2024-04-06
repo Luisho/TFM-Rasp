@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "dictionary.h"
+#include "SensorsManager.h"
 
 int initDevices(int *handleLum, int *handleTemp){
     // Inicializar librería pigpio
@@ -31,17 +32,17 @@ int initDevices(int *handleLum, int *handleTemp){
 int Inicializar_SPI(int *spi_handle) {
     if (gpioInitialise() < 0) {
         fprintf(stderr, "No se pudo inicializar Pigpio\n");
-        return -1;
+        return 1;
     }
 
     // Inicializar la interfaz SPI
     if ((*spi_handle = spiOpen(SPI_CHANNEL, SPI_SPEED, SPI_FLAGS)) < 0) {
         fprintf(stderr, "No se pudo abrir la interfaz SPI\n");
         gpioTerminate();
-        return -1;
+        return 1;
     }
 
-    return spi_handle;
+    return 0;
 }
 
 // Función para realizar una lectura analógica utilizando MCP3008

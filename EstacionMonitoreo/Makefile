@@ -7,7 +7,7 @@ CFLAGS = -Wall -I.
 LDFLAGS = -lpigpio -lrt -lmosquitto
 
 # Fuentes y objetos
-SRCS = main.c SensorsManager.c #Añadir los .c
+SRCS = main.c SensorsManager.c CommunicationModule.c #Añadir los .c
 OBJS = $(SRCS:.c=.o)
 
 # Reglas de construcción

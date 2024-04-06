@@ -6,6 +6,8 @@
 #include <string.h>
 
 #include "SensorsManager.h"
+#include "CommunicationModule.h"
+#include "dictionary.h"
 
 volatile sig_atomic_t  shouldExit = false;
 
@@ -24,9 +26,11 @@ int main() {
         return 1;
     }
 
-    if (Inicializar_SPI(&spi_handle) < 0) {
+    if (Inicializar_SPI(&spi_handle)) {
+        fprintf(stderr, "Error al inicializar canal SPI\n");
         return 1;
     }
+    iniciarMosquitto();
 
     // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
@@ -37,12 +41,16 @@ int main() {
         getAmbientTemperature(handleTemp, &ambientTemp);
         getObjectTemperature(handleTemp, &objectTemp);
 
-        valorGases = LeerCanalSPI(GASES_CHANNEL)
+        valorGases = LeerCanalSPI(GASES_CHANNEL, &spi_handle);
 
         printf("Luminosidad: %d lux | Temperatura ambiente: %.2f °C | Temperatura objeto: %.2f °C | Gases: %d\n", luz, ambientTemp, objectTemp, valorGases);
 
+        publicLum(luz);
+        publicAmbTemp(ambientTemp);
+        publicObjTemp(objectTemp);
+        publicGas(valorGases);
         // Espera
-        usleep(500000);
+        usleep(200000);
     }
 
     // Fin programa
