@@ -1,9 +1,50 @@
 #include <stdio.h>
 #include <pigpio.h>
-#include <unistd.h> // Para la función sleep
+#include <unistd.h>
 
-#define HW691_ADDR 0x5A // Dirección I2C del sensor HW-691
-#define INTERVALO_LECTURA_US 500000 // Intervalo de lectura en microsegundos (0.5 segundos)
+#define SPI_CHANNEL 0
+#define SPI_SPEED   1000000  // Velocidad en Hz
+#define SPI_FLAGS   0
+
+int spi_handle;
+
+// Función para inicializar la comunicación SPI
+int Inicializar_SPI() {
+    if (gpioInitialise() < 0) {
+        fprintf(stderr, "No se pudo inicializar Pigpio\n");
+        return -1;
+    }
+
+    // Inicializar la interfaz SPI
+    int spi_handle = spiOpen(SPI_CHANNEL, SPI_SPEED, SPI_FLAGS);
+    if (spi_handle < 0) {
+        fprintf(stderr, "No se pudo abrir la interfaz SPI\n");
+        gpioTerminate();
+        return -1;
+    }
+
+    return spi_handle;
+}
+
+// Función para realizar una lectura analógica utilizando MCP3008
+int LeerCanalSPI(int channel) {
+    if (channel < 0 || channel > 7) {
+        fprintf(stderr, "Número de canal SPI no válido\n");
+        return -1;
+    }
+
+    char tx_data[3] = {1, 128 + (channel << 4), 0};
+    char rx_data[3];
+
+    int result = spiXfer(spi_handle, tx_data, rx_data, 3);
+    if (result < 0) {
+        fprintf(stderr, "Error al leer el canal %d\n", channel);
+        return -1;
+    }
+
+    int value = ((rx_data[1] & 3) << 8) + rx_data[2];
+    return value;
+}
 
 int main() {
     if (gpioInitialise() < 0) {
@@ -11,32 +52,22 @@ int main() {
         return 1;
     }
 
-    int handle = i2cOpen(1, HW691_ADDR, 0); // Abre un bus I2C en la interfaz 1 y devuelve un identificador de manejo
-
-    if (handle < 0) {
-        fprintf(stderr, "Error al abrir el bus I2C del sensor HW-691\n");
-        gpioTerminate();
+    spi_handle = Inicializar_SPI();
+    if (spi_handle < 0) {
         return 1;
     }
 
-    printf("Leyendo temperaturas...\n");
+    printf("Leyendo valor analógico del MCP3008...\n");
 
     while (1) {
-        // Leer temperatura ambiente en grados Celsius
-        float ambientTempC = i2cReadWordData(handle, 0x06) * 0.02 - 273.15;
-
-        // Leer temperatura del objeto en grados Celsius
-        float objectTempC = i2cReadWordData(handle, 0x07) * 0.02 - 273.15;
-
-        printf("Temperatura ambiente: %.2f °C\tTemperatura objeto: %.2f °C\n", ambientTempC, objectTempC);
+        // Leer valor analógico del MCP3008 (canal 1)
+        int analogValue = LeerCanalSPI(1);
+        printf("Valor analógico del MCP3008: %d\n", analogValue);
 
         // Esperar antes de la próxima lectura
-        usleep(INTERVALO_LECTURA_US);
+        sleep(1);
     }
 
-    // Nunca se llegará aquí, pero cerramos el bus I2C y terminamos pigpio para ser formales
-    i2cClose(handle);
     gpioTerminate();
-
     return 0;
 }
