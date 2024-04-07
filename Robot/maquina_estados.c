@@ -4,7 +4,7 @@
 #include "dictionary.h"
 
 // Guardar el estado Actual
-enum Estado estadoActual = PARADA;
+extern enum Estado estadoActual;
 
 //Generador de Eventos
 void generarEvento(const int instruccion) {

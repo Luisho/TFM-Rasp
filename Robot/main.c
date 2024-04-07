@@ -11,6 +11,7 @@
 
 struct mosquitto *mosq = NULL;
 volatile sig_atomic_t  shouldExit = false;
+enum Estado estadoActual = PARADA;
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;

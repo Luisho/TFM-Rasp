@@ -29,7 +29,7 @@
 
 // Valores definidos
 #define MAX_PWM_VALUE 255
-#define MIN_PWM_VALUE 0
+#define MIN_PWM_VALUE 127
 #define STOP_VALUE 0
 #define ATRAS_SPEED 128
 #define IZQUIERDA_MIN_VALUE 481
@@ -38,3 +38,8 @@
 #define DERECHA_MAX_VALUE 1024
 #define HIGH 1
 #define LOW 0
+
+//Maquina de Estados
+enum Estado {GIRAR_IZQUIERDA, GIRAR_DERECHA, PARADA, AVANZAR, MARCHA_ATRAS};
+
+enum Evento {giro_iz, giro_de, botonPulsado, retroceder};

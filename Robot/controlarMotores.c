@@ -3,6 +3,8 @@
 #include "controlarMotores.h"
 #include "dictionary.h"
 
+extern enum Estado estadoActual;
+
 // Puente H utilizado es el  L298N
 // Los motores utilizados son DC
 
@@ -83,7 +85,9 @@ void establecerVelocidad(int value){
         velocidadActual = value; // El ponerlo así puede que venga bien en un futuro
         
         // Modelizado del valor PWM respecto de la velocidad de 4 etapas establecida
-        valorPWM = ((velocidadActual * 25) * MAX_PWM_VALUE) / 100;
+        valorPWM = MIN_PWM_VALUE + ((velocidadActual * 25) * (MAX_PWM_VALUE - MIN_PWM_VALUE)) / 100;
+        if (estadoActual == AVANZAR)
+            moverMotoresAlante();
     }
 }
 
