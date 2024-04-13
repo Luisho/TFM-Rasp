@@ -2,48 +2,43 @@
 #include <pigpio.h>
 #include <unistd.h>
 
-#define SPI_CHANNEL 0
-#define SPI_SPEED   1000000  // Velocidad en Hz
-#define SPI_FLAGS   0
+#define IR_SENSOR1_PIN 17
+#define IR_SENSOR2_PIN 18
+#define ULTRASONIC_TRIGGER_PIN 23
+#define ULTRASONIC_ECHO_PIN 24
 
-int spi_handle;
-
-// Función para inicializar la comunicación SPI
-int Inicializar_SPI() {
+void setup() {
     if (gpioInitialise() < 0) {
-        fprintf(stderr, "No se pudo inicializar Pigpio\n");
-        return -1;
+        fprintf(stderr, "Error al inicializar pigpio\n");
+        return;
     }
-
-    // Inicializar la interfaz SPI
-    int spi_handle = spiOpen(SPI_CHANNEL, SPI_SPEED, SPI_FLAGS);
-    if (spi_handle < 0) {
-        fprintf(stderr, "No se pudo abrir la interfaz SPI\n");
-        gpioTerminate();
-        return -1;
-    }
-
-    return spi_handle;
+    gpioSetMode(IR_SENSOR1_PIN, PI_INPUT);
+    gpioSetMode(IR_SENSOR2_PIN, PI_INPUT);
+    gpioSetMode(ULTRASONIC_TRIGGER_PIN, PI_OUTPUT);
+    gpioSetMode(ULTRASONIC_ECHO_PIN, PI_INPUT);
 }
 
-// Función para realizar una lectura analógica utilizando MCP3008
-int LeerCanalSPI(int channel) {
-    if (channel < 0 || channel > 7) {
-        fprintf(stderr, "Número de canal SPI no válido\n");
-        return -1;
+void cleanup() {
+    gpioTerminate();
+}
+
+int read_ir_sensor(int pin) {
+    return gpioRead(pin);
+}
+
+float read_ultrasonic_sensor() {
+    gpioTrigger(ULTRASONIC_TRIGGER_PIN, 10, 1); // Generar pulso de 10 µs en el pin de trigger
+    gpioTime_t start, end;
+    gpioTime(0, &start);
+    gpioTime(0, &end);
+    while (!gpioRead(ULTRASONIC_ECHO_PIN)) {
+        gpioTime(0, &start);
     }
-
-    char tx_data[3] = {1, 128 + (channel << 4), 0};
-    char rx_data[3];
-
-    int result = spiXfer(spi_handle, tx_data, rx_data, 3);
-    if (result < 0) {
-        fprintf(stderr, "Error al leer el canal %d\n", channel);
-        return -1;
+    while (gpioRead(ULTRASONIC_ECHO_PIN)) {
+        gpioTime(0, &end);
     }
-
-    int value = ((rx_data[1] & 3) << 8) + rx_data[2];
-    return value;
+    uint32_t diff = gpioDiff(&start, &end); // Diferencia de tiempo en microsegundos
+    return (float)diff / 1000000.0 * 34300.0 / 2.0; // Calcular distancia en centímetros
 }
 
 int main() {
@@ -52,22 +47,19 @@ int main() {
         return 1;
     }
 
-    spi_handle = Inicializar_SPI();
-    if (spi_handle < 0) {
-        return 1;
-    }
-
-    printf("Leyendo valor analógico del MCP3008...\n");
+    setup();
 
     while (1) {
-        // Leer valor analógico del MCP3008 (canal 1)
-        int analogValue = LeerCanalSPI(1);
-        printf("Valor analógico del MCP3008: %d\n", analogValue);
-
-        // Esperar antes de la próxima lectura
+        int ir1 = read_ir_sensor(IR_SENSOR1_PIN);
+        int ir2 = read_ir_sensor(IR_SENSOR2_PIN);
+        float distance = read_ultrasonic_sensor();
+        printf("IR Sensor 1: %d\n", ir1);
+        printf("IR Sensor 2: %d\n", ir2);
+        printf("Ultrasonic Distance: %.2f cm\n", distance);
         sleep(1);
     }
 
-    gpioTerminate();
+    cleanup();
+
     return 0;
 }
