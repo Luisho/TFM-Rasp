@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <mosquitto.h>
+#include <pthread.h>
 #include "dictionary.h"
 #include "maquina_estados.h"
 #include "controlarMotores.h"
@@ -14,6 +15,9 @@ struct mosquitto *mosq = NULL;
 volatile sig_atomic_t  shouldExit = false;
 enum Estado estadoActual = PARADA;
 volatile sig_atomic_t thread_flag = 0;
+int Obstaculo_detectado = 0;
+//Variable para bloquear la llama a la función generarEvento y así evitar conflictos típicos de multihilo
+pthread_mutex_t generarEvento_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
@@ -28,7 +32,9 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
             //printf("Contenido del mensaje: %d\n", instruccion);
 
             // llamada a control de motores
+            pthread_mutex_lock(&generarEvento_mutex);
             generarEvento(instruccion);
+            pthread_mutex_unlock(&generarEvento_mutex);
         } else {
             printf("El mensaje no es un entero válido. %d\n",instruccion);
         }

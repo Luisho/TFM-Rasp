@@ -44,6 +44,7 @@
 #define DERECHA_MAX_VALUE 1024
 #define HIGH 1
 #define LOW 0
+#define MAX_DISTANCE 5.0
 
 //Maquina de Estados
 enum Estado {GIRAR_IZQUIERDA, GIRAR_DERECHA, PARADA, AVANZAR, MARCHA_ATRAS};

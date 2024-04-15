@@ -5,6 +5,7 @@
 
 // Guardar el estado Actual
 extern enum Estado estadoActual;
+extern int Obstaculo_detectado;
 
 //Generador de Eventos
 void generarEvento(const int instruccion) {
@@ -70,8 +71,11 @@ void Giro_de(int value){
 void BotonPulsado(){
     switch (estadoActual) {
         case PARADA:
-            estadoActual = AVANZAR;
-            moverMotoresAlante();
+            //bloqueamos avanzar cuando se detecte un obstáculo, de esta forma evitamos colisiones frontales
+            if(!Obstaculo_detectado){ 
+                estadoActual = AVANZAR;
+                moverMotoresAlante();
+            }
             break;
         case GIRAR_IZQUIERDA:
             estadoActual = PARADA;

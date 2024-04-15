@@ -2,9 +2,16 @@
 #include <pigpio.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 #include "dictionary.h"
+#include "maquina_estados.h"
 
+
+// Variables externas
 extern volatile sig_atomic_t thread_flag;
+extern enum Estado estadoActual;
+extern int Obstaculo_detectado;
+extern pthread_mutex_t generarEvento_mutex;
 
 //Declaración funciones privadas
 void sendTriggerPulse();
@@ -46,6 +53,14 @@ void *deteccionObstaculosThread(void *arg) {
             printf("Objeto detectado por el sensor infrarrojo izquierdo\n");
         } else {
             printf("Ningún objeto detectado por el sensor infrarrojo izquierdo\n");
+        }
+        if(distance_cm < MAX_DISTANCE || ir_Sensor_De == PI_LOW || ir_Sensor_Iz == PI_LOW){
+            Obstaculo_detectado = 1;
+            if(estadoActual == AVANZAR){
+                pthread_mutex_lock(&generarEvento_mutex);
+                generarEvento(BOTON_PULSADO);
+                pthread_mutex_unlock(&generarEvento_mutex);
+            }
         }
 
         // Esperar un corto período antes de tomar otra lectura
