@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <pigpio.h>
 #include <unistd.h>
+#include <signal.h>
 #include "dictionary.h"
 
-extern volatile sig_atomic_t thread_flag = 0;
+extern volatile sig_atomic_t thread_flag;
 
+//Declaración funciones privadas
+void sendTriggerPulse();
+uint32_t measurePulseDuration();
+double calculateDistance(uint32_t pulse_duration);
+
+// Programa
 void *deteccionObstaculosThread(void *arg) {
     // Inicialización de pines
     // initialize();
@@ -46,4 +53,25 @@ void *deteccionObstaculosThread(void *arg) {
     }
 
     pthread_exit(NULL);
+}
+
+// Función para enviar un pulso de trigger al sensor ultrasónico
+void sendTriggerPulse() {
+    gpioWrite(TRIG_PIN, 1);
+    gpioDelay(10);
+    gpioWrite(TRIG_PIN, 0);
+}
+
+// Función para medir la duración del pulso ultrasónico
+uint32_t measurePulseDuration() {
+    while (gpioRead(ECHO_PIN) == 0);
+    uint32_t start = gpioTick();
+    while (gpioRead(ECHO_PIN) == 1);
+    uint32_t end = gpioTick();
+    return end - start;
+}
+
+// Función para calcular la distancia basada en la duración del pulso ultrasónico
+double calculateDistance(uint32_t pulse_duration) {
+    return pulse_duration / 58.0; // Distancia en centímetros
 }

@@ -8,6 +8,7 @@
 #include "dictionary.h"
 #include "maquina_estados.h"
 #include "controlarMotores.h"
+#include "deteccionObstaculos.h"
 
 struct mosquitto *mosq = NULL;
 volatile sig_atomic_t  shouldExit = false;

@@ -4,10 +4,10 @@ TARGET = robot.elf
 # Compilador y opciones de compilación
 CC = gcc
 CFLAGS = -Wall -I.
-LDFLAGS = -lpigpio -lrt -lmosquitto
+LDFLAGS = -lpigpio -lrt -lmosquitto -pthread
 
 # Fuentes y objetos
-SRCS = main.c controlarMotores.c maquina_estados.c
+SRCS = main.c controlarMotores.c maquina_estados.c deteccionObstaculos.c
 OBJS = $(SRCS:.c=.o)
 
 # Reglas de construcción
