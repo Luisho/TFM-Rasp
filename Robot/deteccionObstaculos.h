@@ -1,0 +1,1 @@
+void *deteccionObstaculosThread(void *arg);

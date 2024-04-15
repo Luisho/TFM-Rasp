@@ -12,6 +12,7 @@
 struct mosquitto *mosq = NULL;
 volatile sig_atomic_t  shouldExit = false;
 enum Estado estadoActual = PARADA;
+volatile sig_atomic_t thread_flag = 0;
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
@@ -72,6 +73,14 @@ int main() {
     }
     mosquitto_subscribe(mosq, NULL, TOPIC_INST, QoS_2);
     mosquitto_subscribe(mosq, NULL, TOPIC_VEL, QoS_2);
+
+    // Creación de un hilo para la detección de obstáculos
+    pthread_t detection_thread;
+    if (pthread_create(&detection_thread, NULL, deteccionObstaculosThread, NULL) != 0) {
+        fprintf(stderr, "Error al crear el hilo de detección de obstáculos.\n");
+        return 1;
+    }
+    
     // Bucle principal
     while (!shouldExit) {
         // Procesar eventos de Mosquitto
@@ -87,6 +96,6 @@ int main() {
     mosquitto_disconnect(mosq);
     mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
-
+    thread_flag = 1;
     return 0;
 }

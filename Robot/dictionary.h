@@ -27,6 +27,12 @@
 #define MOTOR_I_IN2 5  // GPIO 5 - Control de dirección motor Izquierdo
 #define MOTOR_I_PWM 19 // GPIO 19 - PWM para control de velocidad motor Izquierdo
 
+//Detector de obtáculos
+#define TRIG_PIN 12
+#define ECHO_PIN 16
+#define IR_SENSOR_PIN_DE 20
+#define IR_SENSOR_PIN_IZ 21
+
 // Valores definidos
 #define MAX_PWM_VALUE 255
 #define MIN_PWM_VALUE 127
