@@ -41,26 +41,18 @@ void *deteccionObstaculosThread(void *arg) {
         // Leer el valor del segundo sensor infrarrojo
         ir_Sensor_Iz = gpioRead(IR_SENSOR_PIN_IZ);
 
-        // Verificar el estado del primer sensor
-        if (ir_Sensor_De == PI_LOW) {
-            printf("Objeto detectado por el sensor infrarrojo derecho\n");
-        } else {
-            printf("Ningún objeto detectado por el sensor infrarrojo derecho\n");
-        }
-
-        // Verificar el estado del segundo sensor
-        if (ir_Sensor_Iz == PI_LOW) {
-            printf("Objeto detectado por el sensor infrarrojo izquierdo\n");
-        } else {
-            printf("Ningún objeto detectado por el sensor infrarrojo izquierdo\n");
-        }
+        // Comprobar detección obstáculo
         if(distance_cm < MAX_DISTANCE || ir_Sensor_De == PI_LOW || ir_Sensor_Iz == PI_LOW){
+            printf("Obstaculo detectado  ");
             Obstaculo_detectado = 1;
             if(estadoActual == AVANZAR){
                 pthread_mutex_lock(&generarEvento_mutex);
                 generarEvento(BOTON_PULSADO);
                 pthread_mutex_unlock(&generarEvento_mutex);
             }
+        }else{
+            printf("No se ha detectado obstaculos  ");
+            Obstaculo_detectado = 0;
         }
 
         // Esperar un corto período antes de tomar otra lectura
