@@ -43,7 +43,9 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
         if (sscanf(message->payload, "%d", &velocidad) == 1) {
             printf("Mensaje recibido en el topic: %s\n", message->topic);
             printf("Contenido del mensaje: %d\n", velocidad);
+            pthread_mutex_lock(&generarEvento_mutex);
             establecerVelocidad(velocidad);
+            pthread_mutex_unlock(&generarEvento_mutex);
         }
     }
 }
