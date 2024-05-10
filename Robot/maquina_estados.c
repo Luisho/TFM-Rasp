@@ -7,6 +7,12 @@
 extern enum Estado estadoActual;
 extern int Obstaculo_detectado;
 
+// declaración funciones privadas
+void Giro_iz(int value);
+void Giro_de(int value);
+void BotonPulsado();
+void Retroceder();
+
 //Generador de Eventos
 void generarEvento(const int instruccion) {
     // Lógica de control de motores según la instrucción recibida
