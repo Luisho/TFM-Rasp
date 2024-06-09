@@ -89,9 +89,8 @@ int main() {
         fprintf(stderr, "Error al crear el hilo de detección de obstáculos.\n");
         return 1;
     }
-    
-    enum Estado estadoControl;
-    const char *estadoSTR;
+
+
     // Bucle principal
     while (!shouldExit) {
         // Procesar eventos de Mosquitto
@@ -101,11 +100,6 @@ int main() {
             fprintf(stderr, "Error en el bucle de Mosquitto, código: %d\n", rc);
             break;
         }
-        //if(estadoControl != estadoActual){
-        //    estadoControl = estadoActual;
-            estadoSTR = estadoToString(estadoActual);
-            mosquitto_publish(mosq, NULL, TOPIC_ESTADO, strlen(estadoSTR), estadoSTR, 2, false);
-        //}
         usleep(200000);
     }
 
