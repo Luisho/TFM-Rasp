@@ -19,12 +19,36 @@ int Obstaculo_detectado = 0;
 //Variable para bloquear la llama a la función generarEvento y así evitar conflictos típicos de multihilo
 pthread_mutex_t generarEvento_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-//Funciones privadas
-const char* estadoToString(enum Estado estado);
-void CtrlC_Interrupt(int signum);
-void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+void CtrlC_Interrupt(int signum) {
+    shouldExit = true;
+}
 
+void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
+    // Guardar la instrucción en un entero
+    if(strcmp(message->topic, TOPIC_INST) == 0){
+        int instruccion;
+        if (sscanf(message->payload, "%d", &instruccion) == 1) {
+            //printf("Mensaje recibido en el topic: %s\n", message->topic);
+            //printf("Contenido del mensaje: %d\n", instruccion);
 
+            // llamada a control de motores
+            pthread_mutex_lock(&generarEvento_mutex);
+            generarEvento(instruccion);
+            pthread_mutex_unlock(&generarEvento_mutex);
+        } else {
+            printf("El mensaje no es un entero válido. %d\n",instruccion);
+        }
+    } else if (strcmp(message->topic, TOPIC_VEL) == 0){
+        int velocidad;
+        if (sscanf(message->payload, "%d", &velocidad) == 1) {
+            printf("Mensaje recibido en el topic: %s\n", message->topic);
+            printf("Contenido del mensaje: %d\n", velocidad);
+            pthread_mutex_lock(&generarEvento_mutex);
+            establecerVelocidad(velocidad);
+            pthread_mutex_unlock(&generarEvento_mutex);
+        }
+    }
+}
 
 int main() {
     /// Inicializar pigpio
@@ -91,51 +115,4 @@ int main() {
     mosquitto_lib_cleanup();
     thread_flag = 1;
     return 0;
-}
-
-// Función para convertir el estado a cadena de texto
-const char* estadoToString(enum Estado estado) {
-    switch(estado) {
-        case GIRAR_IZQUIERDA:
-            return "GIRAR_IZQUIERDA";
-        case GIRAR_DERECHA:
-            return "GIRAR_DERECHA";
-        case PARADA:
-            return "PARADA";
-        case AVANZAR:
-            return "AVANZAR";
-        case MARCHA_ATRAS:
-            return "MARCHA_ATRAS";
-        default:
-            return "DESCONOCIDO";
-    }
-}
-
-void CtrlC_Interrupt(int signum) {
-    shouldExit = true;
-}
-
-void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
-    // Guardar la instrucción en un entero
-    if(strcmp(message->topic, TOPIC_INST) == 0){
-        int instruccion;
-        if (sscanf(message->payload, "%d", &instruccion) == 1) {
-            //printf("Mensaje recibido en el topic: %s\n", message->topic);
-            //printf("Contenido del mensaje: %d\n", instruccion);
-
-            // llamada a control de motores
-            pthread_mutex_lock(&generarEvento_mutex);
-            generarEvento(instruccion);
-            pthread_mutex_unlock(&generarEvento_mutex);
-        } else {
-            printf("El mensaje no es un entero válido. %d\n",instruccion);
-        }
-    } else if (strcmp(message->topic, TOPIC_VEL) == 0){
-        int velocidad;
-        if (sscanf(message->payload, "%d", &velocidad) == 1) {
-            printf("Mensaje recibido en el topic: %s\n", message->topic);
-            printf("Contenido del mensaje: %d\n", velocidad);
-            establecerVelocidad(velocidad);
-        }
-    }
 }
