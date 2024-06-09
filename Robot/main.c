@@ -11,13 +11,18 @@
 #include "controlarMotores.h"
 #include "deteccionObstaculos.h"
 
+// Variables globales
 struct mosquitto *mosq = NULL;
-volatile sig_atomic_t  shouldExit = false;
+volatile sig_atomic_t shouldExit = false;
 enum Estado estadoActual = PARADA;
 volatile sig_atomic_t thread_flag = 0;
 int Obstaculo_detectado = 0;
-//Variable para bloquear la llama a la función generarEvento y así evitar conflictos típicos de multihilo
 pthread_mutex_t generarEvento_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+// Declaración de funciones
+void CtrlC_Interrupt(int signum);
+void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+void *deteccionObstaculosThread(void *arg);
 
 void CtrlC_Interrupt(int signum) {
     shouldExit = true;
@@ -25,24 +30,18 @@ void CtrlC_Interrupt(int signum) {
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
     // Guardar la instrucción en un entero
-    if(strcmp(message->topic, TOPIC_INST) == 0){
+    if (strcmp(message->topic, TOPIC_INST) == 0) {
         int instruccion;
         if (sscanf(message->payload, "%d", &instruccion) == 1) {
-            //printf("Mensaje recibido en el topic: %s\n", message->topic);
-            //printf("Contenido del mensaje: %d\n", instruccion);
-
-            // llamada a control de motores
             pthread_mutex_lock(&generarEvento_mutex);
             generarEvento(instruccion);
             pthread_mutex_unlock(&generarEvento_mutex);
         } else {
-            printf("El mensaje no es un entero válido. %d\n",instruccion);
+            printf("El mensaje no es un entero válido.\n");
         }
-    } else if (strcmp(message->topic, TOPIC_VEL) == 0){
+    } else if (strcmp(message->topic, TOPIC_VEL) == 0) {
         int velocidad;
         if (sscanf(message->payload, "%d", &velocidad) == 1) {
-            printf("Mensaje recibido en el topic: %s\n", message->topic);
-            printf("Contenido del mensaje: %d\n", velocidad);
             pthread_mutex_lock(&generarEvento_mutex);
             establecerVelocidad(velocidad);
             pthread_mutex_unlock(&generarEvento_mutex);
@@ -51,13 +50,18 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 }
 
 int main() {
-    /// Inicializar pigpio
-    gpioInitialise();
+    // Inicializar pigpio
+    if (gpioInitialise() < 0) {
+        fprintf(stderr, "Error al inicializar pigpio.\n");
+        return 1;
+    }
+
     // Capturar señal ctrl+c
     signal(SIGINT, CtrlC_Interrupt);
-    /// Inicializar pines motores
+
+    // Inicializar pines motores
     initMotores();
-    
+
     // Inicialización de Mosquitto
     mosquitto_lib_init();
 
@@ -80,6 +84,7 @@ int main() {
         mosquitto_lib_cleanup();
         return 1;
     }
+
     mosquitto_subscribe(mosq, NULL, TOPIC_INST, QoS_2);
     mosquitto_subscribe(mosq, NULL, TOPIC_VEL, QoS_2);
 
@@ -89,7 +94,6 @@ int main() {
         fprintf(stderr, "Error al crear el hilo de detección de obstáculos.\n");
         return 1;
     }
-
 
     // Bucle principal
     while (!shouldExit) {
@@ -104,9 +108,18 @@ int main() {
     }
 
     // Código de desconexión MQTT y limpieza
+    thread_flag = 1;
+
+    // Esperar a que el hilo termine
+    pthread_join(detection_thread, NULL);
+
+    // Limpiar Mosquitto
     mosquitto_disconnect(mosq);
     mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
-    thread_flag = 1;
+
+    // Terminar pigpio
+    gpioTerminate();
+
     return 0;
 }

@@ -6,14 +6,13 @@
 #include "dictionary.h"
 #include "maquina_estados.h"
 
-
 // Variables externas
 extern volatile sig_atomic_t thread_flag;
 extern enum Estado estadoActual;
 extern int Obstaculo_detectado;
 extern pthread_mutex_t generarEvento_mutex;
 
-//Declaración funciones privadas
+// Declaración funciones privadas
 void sendTriggerPulse();
 uint32_t measurePulseDuration();
 double calculateDistance(uint32_t pulse_duration);
@@ -21,7 +20,7 @@ double calculateDistance(uint32_t pulse_duration);
 // Programa
 void *deteccionObstaculosThread(void *arg) {
     // Inicialización de pines
-    // initialize();
+    gpioInitialise(); // Asegúrate de que pigpio está inicializado
     gpioSetMode(IR_SENSOR_PIN_DE, PI_INPUT);
     gpioSetMode(IR_SENSOR_PIN_IZ, PI_INPUT);
 
@@ -43,15 +42,15 @@ void *deteccionObstaculosThread(void *arg) {
 
         // Comprobar detección obstáculo
         if(distance_cm < MAX_DISTANCE || ir_Sensor_De == PI_LOW || ir_Sensor_Iz == PI_LOW){
-            printf("Obstaculo detectado  ");
+            printf("Obstaculo detectado\n");
             Obstaculo_detectado = 1;
             if(estadoActual == AVANZAR){
                 pthread_mutex_lock(&generarEvento_mutex);
                 generarEvento(BOTON_PULSADO);
                 pthread_mutex_unlock(&generarEvento_mutex);
             }
-        }else{
-            printf("No se ha detectado obstaculos  ");
+        } else {
+            printf("No se ha detectado obstaculos\n");
             Obstaculo_detectado = 0;
         }
 
@@ -60,6 +59,7 @@ void *deteccionObstaculosThread(void *arg) {
         usleep(50000);
     }
 
+    gpioTerminate(); // Finalizar pigpio al terminar el hilo
     pthread_exit(NULL);
 }
 
