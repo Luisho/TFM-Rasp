@@ -57,6 +57,7 @@ void *deteccionObstaculosThread(void *arg) {
 
         // Esperar un corto período antes de tomar otra lectura
         gpioDelay(100000); // 100 ms
+        usleep(50000);
     }
 
     pthread_exit(NULL);
