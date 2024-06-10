@@ -56,7 +56,6 @@ int main() {
 
     // Fin programa
     gpioWrite(LED_RED, 0);
-    enviarBoton();
     Cerrar_SPI();
     gpioTerminate();
 
