@@ -54,7 +54,6 @@ int main() {
         system(command);
         exit(0);
     }
-
     // Inicio del programa en C
     while (!shouldExit) {
         getluminityValues(handleLum, &luz);
