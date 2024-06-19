@@ -35,16 +35,16 @@
 
 // Valores definidos
 #define MAX_PWM_VALUE 255
-#define MIN_PWM_VALUE 127
+#define MIN_PWM_VALUE 170
 #define STOP_VALUE 0
-#define ATRAS_SPEED 128
+#define ATRAS_SPEED 180
 #define IZQUIERDA_MIN_VALUE 481
 #define IZQUIERDA_MAX_VALUE 0
 #define DERECHA_MIN_VALUE 542
 #define DERECHA_MAX_VALUE 1024
 #define HIGH 1
 #define LOW 0
-#define MAX_DISTANCE 10.0
+#define MAX_DISTANCE 15.0
 
 //Maquina de Estados
 enum Estado {GIRAR_IZQUIERDA, GIRAR_DERECHA, PARADA, AVANZAR, MARCHA_ATRAS};

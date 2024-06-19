@@ -50,7 +50,7 @@ void *deteccionObstaculosThread(void *arg) {
                 pthread_mutex_unlock(&generarEvento_mutex);
             }
         } else {
-            printf("No se ha detectado obstaculos\n");
+            //printf("No se ha detectado obstaculos\n");
             Obstaculo_detectado = 0;
         }
 
